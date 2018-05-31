@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 
 
 @SpringBootApplication
-@MapperScan("com.uas.dingzikaifa.dao")
+//@MapperScan("com.uas.dingzikaifa.dao")
 public class DingzikaifaApplication {
 	@Autowired
 	private Environment env;
