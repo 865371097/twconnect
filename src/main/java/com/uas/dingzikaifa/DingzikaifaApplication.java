@@ -2,6 +2,8 @@ package com.uas.dingzikaifa;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import org.mybatis.spring.annotation.MapperScan;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,6 +16,9 @@ import javax.sql.DataSource;
 @SpringBootApplication
 //@MapperScan("com.uas.dingzikaifa.dao")
 public class DingzikaifaApplication {
+
+	private static Logger logger = LoggerFactory.getLogger(DingzikaifaApplication.class);
+
 	@Autowired
 	private Environment env;
 
@@ -36,7 +41,10 @@ public class DingzikaifaApplication {
 	}
 
 	public static void main(String[] args) {
+
+		logger.info("开始启动了哈哈哈");
 		SpringApplication.run(DingzikaifaApplication.class, args);
+		logger.info("开始结束了哈哈哈");
 	}
 }
 
