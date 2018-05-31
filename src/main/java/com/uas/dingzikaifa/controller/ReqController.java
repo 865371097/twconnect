@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/dingzikaifa")
 public class ReqController {
 
     @Autowired
@@ -28,6 +29,6 @@ public class ReqController {
 
     @RequestMapping("/getVersion")
     public String getVersion() {
-        return "version: uasToTopwise-2018052901";
+        return "version: uasToTopwise-2018053101";
     }
 }
