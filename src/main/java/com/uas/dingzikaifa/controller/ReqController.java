@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/dingzikaifa")
 public class ReqController {
@@ -15,10 +18,13 @@ public class ReqController {
     private ReqService reqService;
 
     @RequestMapping("/toProdOut.action")
-    public boolean toProdOut(String jsons, String token) throws IllegalAccessException {
+    public Map<String, Object> toProdOut(String jsons, String token) throws IllegalAccessException {
+        Map<String, Object> map = new HashMap<String, Object>();
         if (SecurityUtil.checkToken(token)) {
             if (!StringUtils.isEmpty(jsons)) {
-                return reqService.toProdOut(jsons) ;
+                map.put("success", true);
+                map.put("code", reqService.toProdOut(jsons));
+                return map;
             }else {
                 throw new IllegalAccessException("请求参数为空");
             }
@@ -27,8 +33,8 @@ public class ReqController {
         }
     }
 
-    @RequestMapping("/getVersion")
+        @RequestMapping("/getVersion")
     public String getVersion() {
-        return "version: uasToTopwise-2018053101";
+        return "version: uasToTopwise-2018061301";
     }
 }

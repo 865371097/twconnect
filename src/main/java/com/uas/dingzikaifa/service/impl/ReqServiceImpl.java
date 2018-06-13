@@ -21,7 +21,7 @@ public class ReqServiceImpl implements ReqService {
     private BaseDao baseDao;
 
     @Override
-    public boolean toProdOut(String jsons) throws IllegalAccessException {
+    public String toProdOut(String jsons) throws IllegalAccessException {
         List<Map<Object, Object>> maps = JsonUtil.toMapList(jsons);
         List<String> insertSql = new ArrayList<String>();
         List<String> updateSql = new ArrayList<String>();
@@ -29,6 +29,7 @@ public class ReqServiceImpl implements ReqService {
         int tn_id = baseDao.getSeq("TOPWISECONNECT_seq");
         int id = baseDao.getSeq("ProdInOut_seq");
         String code = baseDao.sGetMaxNumber("ProdInOut!AppropriationOut", 2);
+        String pi_code = "未生成拨出单!";//最终的拨出单单号
         //记录上传数据
         Save(jsons, tn_id);
         //对接ERP
@@ -49,6 +50,7 @@ public class ReqServiceImpl implements ReqService {
                 Object emcode = baseDao.getFieldDataByCondition("employee", "em_code", "em_name='" + emname + "'");
                 //插入主表
                 if (detno == 1) {
+                    pi_code = code;
                     insertSql.add("insert into prodinout (pi_id,pi_inoutno,pi_class,pi_date,pi_type,pi_teamcode_user,pi_sourcecode," +
                             "pi_custname2,pi_ntbamount,pi_emname,pi_emcode,pi_departmentcode,pi_departmentname,pi_status,pi_invostatus,pi_printstatus,pi_recordman,pi_recorddate," +
                             "pi_invostatuscode,pi_statuscode,pi_whcode,pi_whname,pi_purpose,pi_purposename,pi_remark) select " + id + ",'" + code + "','拨出单',to_date('" + BaseUtil.parseDateToString(date, "yyyy-MM-dd") + "','yyyy-mm-dd')," +
@@ -68,7 +70,7 @@ public class ReqServiceImpl implements ReqService {
         }
         insertSql.add("update TOPWISECONNECT set tn_status=-1 where tn_id=" + tn_id);
         baseDao.execute(insertSql);
-        return true;
+        return pi_code;
     }
 
     private void checkName(Object name, int tn_id) throws  IllegalAccessException{
