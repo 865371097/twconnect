@@ -20,21 +20,24 @@ public class ReqController {
     @RequestMapping("/toProdOut.action")
     public Map<String, Object> toProdOut(String jsons, String token) throws IllegalAccessException {
         Map<String, Object> map = new HashMap<String, Object>();
+        boolean suc = false;
+        String message = "";
         if (SecurityUtil.checkToken(token)) {
             if (!StringUtils.isEmpty(jsons)) {
-                map.put("success", true);
-                map.put("code", reqService.toProdOut(jsons));
-                return map;
+                return reqService.toProdOut(jsons);
             }else {
-                throw new IllegalAccessException("请求参数为空");
+                message = "请求参数为空";
             }
         } else {
-            throw new IllegalAccessException("请求Token有误");
+            message = "请求Token有误";
         }
+        map.put("success", suc);
+        map.put("result", message);
+        return map;
     }
 
-        @RequestMapping("/getVersion")
+    @RequestMapping("/getVersion")
     public String getVersion() {
-        return "version: uasToTopwise-2018061301";
+        return "version: uasToTopwise-2018061401";
     }
 }
