@@ -4,4 +4,6 @@ import java.util.Map;
 
 public interface ReqService {
     Map<String, Object> toProdOut(String jsons) throws IllegalAccessException;
+
+    Map<String,Object> getWarehouse(String info);
 }

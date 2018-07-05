@@ -76,6 +76,42 @@ public class ReqServiceImpl implements ReqService {
         return res;
     }
 
+    @Override
+    public Map<String, Object> getWarehouse(String info) {
+        Map<Object, Object> map = JsonUtil.toMap(info);
+        Map<String, Object> resMap = new HashMap<String, Object>();
+        String success = "success";
+        String result = "";
+        if (map != null) {
+            Object whcode = map.get("wh_code");
+            Object prcode = map.get("pr_code");
+            if (!StringUtils.isEmpty(whcode) && !StringUtils.isEmpty(prcode)) {
+                String[] codes = prcode.toString().split(",");
+                StringBuffer con = new StringBuffer("pw_prodcode in ( ");
+                StringBuffer res = new StringBuffer();
+                for (String code : codes) {
+                    con.append("'" + code + "',");
+                }
+                List<Object[]> datas = baseDao.getFieldsDatasByCondition("productwh", new String[]{"pw_onhand", "pw_prodcode"},
+                        con.substring(0, con.length() - 1) + " ) and pw_whcode='" + whcode + "'");
+                for (Object[] data : datas) {
+                    res.append(data[1] + ":" + (data[0] == null ? 0 : data[0]) + ";");
+                }
+                result = res.toString().length() >0 ? res.toString().substring(0, res.length() - 1) : res.toString();
+            }else {
+                success = "fail";
+                result = "json中库存编号或者物料编号不存在!";
+            }
+        }else {
+            success = "fail";
+            result = "json数据无法解析!";
+        }
+
+        resMap.put("success", success);
+        resMap.put("result", result);
+        return resMap;
+    }
+
     private String check(Object prcode, Object outwhcode, Object inwhcode, Object emname, int tn_id) {
         int count = 0;
          count = baseDao.getCount("select count(1) from product where pr_code=?", prcode);

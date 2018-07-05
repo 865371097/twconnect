@@ -185,4 +185,49 @@ public class BaseDao {
             return null;
         }
     }
+
+    /**
+     * 多个字段，多条结果
+     *
+     * @param tableName
+     *            对应要查询的表
+     * @param fields
+     *            要查询的字段集合
+     * @param condition
+     *            查询条件
+     * @return fields对应的数据
+     */
+    public List<Object[]> getFieldsDatasByCondition(String tableName, String[] fields, String condition) {
+        StringBuffer sql = new StringBuffer("SELECT ");
+        sql.append(BaseUtil.parseArray2Str(fields, ","));
+        sql.append(" FROM ");
+        sql.append(tableName);
+        sql.append(" WHERE ");
+        sql.append(condition);
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(sql.toString());
+        Iterator<Map<String, Object>> iter = list.iterator();
+        List<Object[]> datas = new ArrayList<Object[]>();
+        Object value = null;
+        Map<String, Object> m = null;
+        Object[] results = null;
+        int length = fields.length;
+        while (iter.hasNext()) {
+            results = new Object[length];
+            m = iter.next();
+            for (int i = 0; i < length; i++) {
+                value = m.get(fields[i].toUpperCase());
+                if (value != null && value.getClass().getSimpleName().toUpperCase().equals("TIMESTAMP")) {
+                    Timestamp time = (Timestamp) value;
+                    try {
+                        value = BaseUtil.parseDateToString(new Date(time.getTime()), "yyyy-MM-dd HH:mm:ss");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                results[i] = value;
+            }
+            datas.add(results);
+        }
+        return datas;
+    }
 }

@@ -26,37 +26,40 @@ public class JsonUtil {
 
     public static Map<Object, Object> toMap(String jsonStr) {
         jsonStr = decodeUnicode(jsonStr);
-        jsonStr = jsonStr.substring(jsonStr.indexOf("{") + 1, jsonStr.lastIndexOf("}"));
-        String[] strs;
-        if(jsonStr.indexOf("\",\"")>0) strs = jsonStr.split(",\"");
-        else  strs = jsonStr.split(","); //字段名前没有引号的jsonStr ,类似bom校验：{bo_version:"V1.0",bo_mothercode:"BS00012",bo_ispast:"否",}
-        String field = null;
-        String value = null;
-        Map<Object, Object> map = new HashMap<Object, Object>();
-        for (String str : strs) {
-            if (str.indexOf(":") > 0) {
-                field = str.substring(0, str.indexOf(":"));
-                if (field != null) {
-                    if (field.startsWith("\"")) {
-                        field = field.substring(1, field.length());
+        if (jsonStr.indexOf("{") > -1 && jsonStr.indexOf("}") > -1){
+            jsonStr = jsonStr.substring(jsonStr.indexOf("{") + 1, jsonStr.lastIndexOf("}"));
+            String[] strs;
+            if(jsonStr.indexOf("\",\"")>0) strs = jsonStr.split(",\"");
+            else  strs = jsonStr.split(","); //字段名前没有引号的jsonStr ,类似bom校验：{bo_version:"V1.0",bo_mothercode:"BS00012",bo_ispast:"否",}
+            String field = null;
+            String value = null;
+            Map<Object, Object> map = new HashMap<Object, Object>();
+            for (String str : strs) {
+                if (str.indexOf(":") > 0) {
+                    field = str.substring(0, str.indexOf(":"));
+                    if (field != null) {
+                        if (field.startsWith("\"")) {
+                            field = field.substring(1, field.length());
+                        }
+                        if (field.endsWith("\"")) {
+                            field = field.substring(0, field.lastIndexOf("\""));
+                        }
                     }
-                    if (field.endsWith("\"")) {
-                        field = field.substring(0, field.lastIndexOf("\""));
+                    value = str.substring(str.indexOf(":") + 1);
+                    if (value != null) {
+                        if (value.startsWith("\"")) {
+                            value = value.substring(1, value.length());
+                        }
+                        if (value.endsWith("\"")) {
+                            value = value.substring(0, value.lastIndexOf("\""));
+                        }
                     }
+                    map.put(field, value);
                 }
-                value = str.substring(str.indexOf(":") + 1);
-                if (value != null) {
-                    if (value.startsWith("\"")) {
-                        value = value.substring(1, value.length());
-                    }
-                    if (value.endsWith("\"")) {
-                        value = value.substring(0, value.lastIndexOf("\""));
-                    }
-                }
-                map.put(field, value);
             }
+            return map;
         }
-        return map;
+        return null;
     }
 
     public static List<Map<Object, Object>> toMapList(String jsonStr) {

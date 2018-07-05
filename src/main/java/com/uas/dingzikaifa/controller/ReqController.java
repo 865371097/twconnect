@@ -36,8 +36,26 @@ public class ReqController {
         return map;
     }
 
+    @RequestMapping("/getProductWH.action")
+    public Map<String, Object> getProductWH (String info, String token) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        String message;
+        if (SecurityUtil.checkToken(token)) {
+            if (!StringUtils.isEmpty(info)) {
+                return reqService.getWarehouse(info);
+            }else {
+                message = "请求参数为空";
+            }
+        } else {
+            message = "请求Token有误";
+        }
+        map.put("success", "fail");
+        map.put("result", message);
+        return map;
+    }
+
     @RequestMapping("/getVersion")
     public String getVersion() {
-        return "version: uasToTopwise-2018061401";
+        return "version: uasToTopwise-2018070401";
     }
 }
