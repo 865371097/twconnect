@@ -97,6 +97,19 @@ public class ReqServiceImpl implements ReqService {
                 for (Object[] data : datas) {
                     res.append(data[1] + ":" + (data[0] == null ? 0 : data[0]) + ";");
                 }
+                //数据库没有该库存的显示物料编号 数据为0
+                for (String pr_code : codes) {
+                    boolean flag = false;
+                    for (Object[] data : datas) {
+                        if (pr_code.equals(data[1])) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (!flag) {
+                        res.append(pr_code + ":0;");
+                    }
+                }
                 result = res.toString().length() >0 ? res.toString().substring(0, res.length() - 1) : res.toString();
             }else {
                 success = "fail";
@@ -139,6 +152,7 @@ public class ReqServiceImpl implements ReqService {
 
     private void Save(String jsons, int id) {
         jsons = jsons.replace("'", "''");
-        baseDao.execute("insert into TOPWISECONNECT select "+ id + ",'" + jsons + "',sysdate,0 from dual");
+        baseDao.execute("declare v_colb clob; begin  v_colb:='" + jsons + "'; " +
+                "insert into TOPWISECONNECT values (" + id + " , v_colb, sysdate, 0); end; ");
     }
 }
