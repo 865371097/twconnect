@@ -8,16 +8,17 @@ import com.uas.dingzikaifa.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Savepoint;
 import java.util.*;
 
 @Service
+//@EnableTransactionManagement
 public class ReqServiceImpl implements ReqService {
 
     @Autowired
     private BaseDao baseDao;
 
     @Override
+    //@Transactional(propagation= Propagation.REQUIRED)
     public Map<String, Object> toProdOut(String jsons) throws IllegalAccessException {
         List<Map<Object, Object>> maps = JsonUtil.toMapList(jsons);
         List<String> insertSql = new ArrayList<String>();
@@ -54,8 +55,8 @@ public class ReqServiceImpl implements ReqService {
                     insertSql.add("insert into prodinout (pi_id,pi_inoutno,pi_class,pi_date,pi_type,pi_teamcode_user,pi_sourcecode," +
                             "pi_custname2,pi_ntbamount,pi_emname,pi_emcode,pi_departmentcode,pi_departmentname,pi_status,pi_invostatus,pi_printstatus,pi_recordman,pi_recorddate," +
                             "pi_invostatuscode,pi_statuscode,pi_whcode,pi_whname,pi_purpose,pi_purposename,pi_remark) select " + id + ",'" + code + "','拨出单',to_date('" + BaseUtil.parseDateToString(date, "yyyy-MM-dd") + "','yyyy-mm-dd')," +
-                            "'库存转移',' ',' ',' ',0,'" + emname + "','" + emcode + "','15','售后部','未过账','在录入','未打印','" + emname + "',to_date('" + BaseUtil.parseDateToString(date, "yyyy-MM-dd") + "','yyyy-MM-dd')," +
-                            "'ENTERING','UNPOST','" + outwhcode + "','" + outname + "','" + inwhcode + "','" + inname + "','" + remark + "' from dual");
+                            "'库存转移',' ',' ',' ',0,'" + emname + "','" + emcode + "','S002','市场经理','未过账','已审核','未打印','" + emname + "',to_date('" + BaseUtil.parseDateToString(date, "yyyy-MM-dd") + "','yyyy-MM-dd')," +
+                            "'AUDITED','UNPOST','" + outwhcode + "','" + outname + "','" + inwhcode + "','" + inname + "','" + remark + "' from dual");
                 }
                 //插入从表
                 insertSql.add("insert into PRODIODETAIL (pd_id,pd_piid,pd_inoutno,pd_piclass,pd_pdno,pd_prodcode," +
@@ -71,9 +72,24 @@ public class ReqServiceImpl implements ReqService {
         }
         insertSql.add("update TOPWISECONNECT set tn_status=-1 where tn_id=" + tn_id);
         baseDao.execute(insertSql);
+
+        //执行过账
+       /* if (pi_code != null) {
+            post(pi_code);
+        }*/
         res.put("success", pi_code == null ? false : true);
         res.put("result", pi_code == null ? "无效json" : pi_code);
         return res;
+    }
+
+    public void post(String code) {
+        String result;
+        try {
+              baseDao.callProcedure("Sp_SplitProdOut", new Object[]{"拨出单", code, "admin"});
+              baseDao.callProcedure("SP_COMMITPRODINOUT", new Object[]{"拨出单", code, "admin"});
+        } catch (Exception e) {
+            e.getMessage();
+        }
     }
 
     @Override
